@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.vscode-dotnet-runtime",
+    "Vue.volar",
+    "ms-azuretools.vscode-containers",
+    "EditorConfig.EditorConfig",
+    "csharpier.csharpier-vscode"
+  ]
+}

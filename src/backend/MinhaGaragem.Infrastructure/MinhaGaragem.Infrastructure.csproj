@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <ProjectReference Include="../MinhaGaragem.Domain/MinhaGaragem.Domain.csproj" /><ProjectReference Include="../MinhaGaragem.Application/MinhaGaragem.Application.csproj" /><PackageReference
+            Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore"
+            Version="10.0.15"
+        /><PackageReference
+            Include="Npgsql.EntityFrameworkCore.PostgreSQL"
+            Version="10.0.3"
+        /><PackageReference
+            Include="Microsoft.EntityFrameworkCore.Design"
+            Version="10.0.15"
+            PrivateAssets="all"
+        />
+    </ItemGroup>
+</Project>

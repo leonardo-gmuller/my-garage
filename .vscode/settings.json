@@ -1,0 +1,32 @@
+{
+  "dotnet.defaultSolution": "MinhaGaragem.sln",
+  "debug.onTaskErrors": "abort",
+  "files.associations": {
+    "*.vue": "vue"
+  },
+  "files.watcherExclude": {
+    "**/bin/**": true,
+    "**/obj/**": true,
+    "**/.local/**": true,
+    "**/.tools/**": true,
+    "**/node_modules/**": true
+  },
+  "search.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/.local": true,
+    "**/.tools": true,
+    "**/dist": true
+  },
+  "typescript.tsdk": "src/frontend/node_modules/typescript/lib",
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "[makefile]": {
+    "editor.insertSpaces": false
+  },
+  "[csharp]": {
+    "editor.defaultFormatter": "csharpier.csharpier-vscode",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4
+  }
+}

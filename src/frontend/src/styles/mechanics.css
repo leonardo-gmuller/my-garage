@@ -1,0 +1,49 @@
+.mechanics-heading { align-items: flex-start; gap: 20px; }
+.mechanics-heading .view-description { max-width: 540px; }
+.mechanics-heading > .button { flex: 0 0 auto; }
+.mechanics-filters { display: grid; grid-template-columns: minmax(0,1fr) 190px auto; align-items: end; gap: 16px; margin-bottom: 24px; padding: 20px 24px; }
+.mechanics-filters > label { display: grid; gap: 8px; color: var(--text-secondary); font-size: 12px; min-width: 0; }
+.mechanics-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+.mechanic-card { display: flex; flex-direction: column; padding: 26px; min-width: 0; }
+.mechanic-card__heading { display: flex; align-items: center; gap: 12px; }
+.mechanic-card__heading > div { min-width: 0; flex: 1; }
+.mechanic-card__heading h2 { font-size: 21px; font-weight: 500; line-height: 1.3; overflow-wrap: anywhere; }
+.mechanic-card__heading p { font-size: 12px; margin-top: 4px; overflow-wrap: anywhere; }
+.mechanic-avatar { display: grid; place-items: center; flex: 0 0 auto; width: 46px; height: 46px; border: 1px solid var(--glass-border); border-radius: 15px; color: var(--accent-hover); background: var(--glass-hover); }
+.mechanic-archived { padding: 4px 8px; border: 1px solid var(--glass-border); border-radius: 30px; color: var(--text-muted); font-size: 10px; }
+.mechanic-specialty { align-self: flex-start; border: 1px solid var(--accent-border); border-radius: 30px; padding: 5px 11px; color: var(--accent-hover); font-size: 11px; margin-top: 18px; overflow-wrap: anywhere; max-width: 100%; }
+.mechanic-contact { display: grid; gap: 12px; margin: 22px 0; }
+.mechanic-contact > a, .mechanic-contact > p { display: flex; align-items: flex-start; gap: 10px; color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
+.mechanic-contact svg { flex: 0 0 auto; margin-top: 3px; color: var(--text-muted); }
+.mechanic-contact span { min-width: 0; overflow-wrap: anywhere; }
+.mechanic-contact a:hover { color: var(--accent-hover); }
+.mechanic-notes { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-muted); font-size: 12px; line-height: 1.7; margin-bottom: 22px; }
+.mechanic-service-summary { display: grid; gap: 6px; padding-top: 18px; margin-top: auto; border-top: 1px solid var(--glass-border); color: var(--text-secondary); font-size: 12px; }
+.mechanic-service-summary strong { color: var(--text-primary); font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.mechanic-service-summary small { color: var(--text-muted); font-size: 11px; }
+.mechanic-card__actions { display: flex; align-items: center; gap: 9px; margin-top: 22px; }
+.mechanic-card__actions > .button { flex: 1; font-size: 11px; }
+.mechanic-card--archived .mechanic-avatar { color: var(--text-muted); }
+.mechanic-history { display: grid; gap: 18px; margin-top: 22px; }
+.mechanic-history__record { padding-bottom: 20px; border-bottom: 1px solid var(--glass-border); }
+.mechanic-history__record .section-header { gap: 16px; margin-bottom: 10px; font-size: 12px; }
+.mechanic-history__record .section-header > strong { white-space: nowrap; color: var(--accent-hover); }
+.mechanic-history__record h3 { font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.mechanic-history__record > p { margin-top: 8px; font-size: 12px; }
+.mechanic-history__notes { white-space: pre-wrap; color: var(--text-secondary); overflow-wrap: anywhere; }
+.record-mechanic-field { display: grid; gap: 10px; }
+.record-mechanic-field > label { display: grid; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+.record-mechanic-field > .text-button { justify-self: start; }
+.record-mechanic { color: var(--text-secondary); font-size: 13px; margin: 8px 0 16px; }
+@media (max-width:1100px) { .mechanics-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width:760px) {
+ .mechanics-heading { flex-wrap: wrap; }
+ .mechanics-filters { grid-template-columns: minmax(0,1fr) auto; padding: 20px; gap: 14px; }
+ .mechanics-filters > label:first-child { grid-column: 1/-1; }
+ .mechanics-grid { grid-template-columns: minmax(0,1fr); gap: 16px; }
+ .mechanic-card { padding: 22px; }
+ .mechanic-card__heading h2 { font-size: 20px; }
+}
+
+.mechanic-contact > a { min-height: 28px; }
+.mechanic-card__actions > .icon-button { width: 44px; min-width: 44px; height: 44px; }

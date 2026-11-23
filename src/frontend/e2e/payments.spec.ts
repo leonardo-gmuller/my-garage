@@ -1,0 +1,51 @@
+import { test,expect } from '@playwright/test'
+import { signIn,cleanup,selectTestVehicle } from './support/session'
+test.afterEach(async({page})=>cleanup(page))
+
+test('separate card charges preserve item prices, pending interest and the final cost of one visit',async({page},testInfo)=>{
+ test.setTimeout(180000)
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.emulateMedia({reducedMotion:'reduce'})
+ const navigate=async(name:string)=>{const menu=page.getByRole('button',{name:'Abrir navegação'});if(await menu.isVisible())await menu.click();await page.getByRole('link',{name,exact:true}).click()}
+ await signIn(page,'/historico')
+ await expect(page.getByRole('combobox',{name:'Veículo selecionado',exact:true})).toContainText('Saveiro')
+ await page.getByRole('button',{name:'Registrar serviço',exact:true}).click()
+ const dialog=page.getByRole('dialog',{name:'Registrar serviço',exact:true})
+ await dialog.getByLabel('Descrição',{exact:true}).fill('Revisão com pagamentos separados — teste')
+ await dialog.getByLabel('Motor',{exact:true}).check();await dialog.getByLabel('Suspensão',{exact:true}).check()
+ await dialog.getByRole('combobox',{name:'Como deseja informar o valor?',exact:true}).click();await page.getByRole('option',{name:'Valores detalhados',exact:true}).click()
+ // Entirely fictional parts and prices; independent charges exercise the same financial rules.
+ const items:[string,number,string][]=[['Amortecedores de teste',2,'300'],['Cabos de teste',1,'200'],['Velas de teste',4,'50'],['Kits de teste',2,'250'],['Óleo de teste',4,'125']]
+ for(const [index,[name,quantity,cost]]of items.entries()){
+  await dialog.getByRole('button',{name:'Adicionar peça',exact:true}).click()
+  await dialog.locator('#item-name-'+index).fill(name);await dialog.locator('#item-quantity-'+index).fill(String(quantity));await dialog.locator('#item-quantity-'+index).press('Tab')
+  await dialog.locator('#item-cost-'+index).fill(cost);await dialog.locator('#item-cost-'+index).press('Tab')
+ }
+ await dialog.getByLabel('Mão de obra (R$)',{exact:true}).fill('1000');await dialog.getByLabel('Mão de obra (R$)',{exact:true}).press('Tab')
+ await dialog.getByRole('button',{name:'Pagamento das peças',exact:true}).click();await dialog.getByRole('button',{name:'Pagamento da mão de obra',exact:true}).click()
+ await expect(dialog.locator('.form-actions')).toContainText('Total conhecido');await expect(dialog.locator('.form-actions')).toContainText('R$ 3.000,00')
+ await dialog.getByRole('button',{name:'Salvar serviço',exact:true}).click();await expect(dialog).toBeHidden()
+ const record=page.locator('.timeline-record');await expect(record).toHaveCount(1);await expect(record).toContainText('Juros não informados');await expect(record.locator('.record-parts .data-row')).toHaveCount(5)
+ await navigate('Financeiro');await expect(page.locator('.finance-totals')).toContainText('Total conhecido');await expect(page.locator('.payment-pending')).toContainText('2 cobranças')
+ await navigate('Histórico de serviços');await page.reload();await selectTestVehicle(page);await expect(record).toHaveCount(1)
+ await page.getByRole('button',{name:'Editar serviço Revisão com pagamentos separados — teste',exact:true}).click()
+ const edit=page.getByRole('dialog',{name:'Editar serviço',exact:true})
+ await expect(edit.getByRole('spinbutton',{name:'Total com juros das peças',exact:true})).toHaveValue('')
+ await edit.getByRole('spinbutton',{name:'Quantidade de parcelas das peças',exact:true}).fill('6');await edit.getByRole('spinbutton',{name:'Quantidade de parcelas das peças',exact:true}).press('Tab')
+ await edit.getByRole('combobox',{name:'Informar pagamento das peças',exact:true}).click();await page.getByRole('option',{name:'Somente os juros em R$',exact:true}).click()
+ await edit.getByRole('spinbutton',{name:'Juros e acréscimos das peças',exact:true}).fill('200');await edit.getByRole('spinbutton',{name:'Juros e acréscimos das peças',exact:true}).press('Tab')
+ await edit.getByRole('spinbutton',{name:'Quantidade de parcelas da mão de obra',exact:true}).fill('3');await edit.getByRole('spinbutton',{name:'Quantidade de parcelas da mão de obra',exact:true}).press('Tab')
+ await edit.getByRole('spinbutton',{name:'Total com juros da mão de obra',exact:true}).fill('1100');await edit.getByRole('spinbutton',{name:'Total com juros da mão de obra',exact:true}).press('Tab')
+ await expect(edit.locator('.form-actions')).toContainText('R$ 3.300,00');await expect(edit.locator('.form-actions')).toContainText('R$ 300,00')
+ await edit.getByRole('spinbutton',{name:'Juros e acréscimos das peças',exact:true}).scrollIntoViewIfNeeded()
+ await page.screenshot({path:`test-results/payments-form-${testInfo.project.name}.png`,fullPage:false,scale:'css'})
+ await edit.getByRole('button',{name:'Salvar serviço',exact:true}).click();await expect(edit).toBeHidden()
+ await expect(record).toHaveCount(1);await expect(record).toContainText('6 parcelas');await expect(record).toContainText('3 parcelas');await expect(record.locator('.record-totals')).toContainText('R$ 3.300,00')
+ await expect(record.locator('.record-parts .data-row')).toHaveCount(5)
+ await navigate('Financeiro');const totals=page.locator('.finance-totals')
+ await expect(totals).toContainText('R$ 2.000,00');await expect(totals).toContainText('R$ 1.000,00');await expect(totals).toContainText('R$ 300,00');await expect(totals).toContainText('R$ 3.300,00');await expect(totals).not.toContainText('Total conhecido')
+ expect(await page.locator('.bar-interest').evaluateAll(elements=>elements.some(el=>el.getBoundingClientRect().height>0))).toBeTruthy()
+ await page.screenshot({path:`test-results/payments-finance-${testInfo.project.name}.png`,fullPage:false,scale:'css'})
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy()
+ await navigate('Meus veículos');page.once('dialog',d=>d.accept());await page.getByRole('button',{name:'Excluir Saveiro E2E',exact:true}).click()
+ await expect(page.getByRole('button',{name:'Excluir Saveiro E2E',exact:true})).toHaveCount(0);expect(errors).toEqual([])
+})

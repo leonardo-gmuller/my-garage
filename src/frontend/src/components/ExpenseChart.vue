@@ -1,0 +1,9 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { money } from '../services/types'
+const props=defineProps<{data:{month:string;parts:number;labor:number;total:number;unallocated:number;interest:number}[]}>()
+const max=computed(()=>Math.max(...props.data.map(m=>m.total),1)),sum=computed(()=>props.data.reduce((s,m)=>s+m.total,0))
+function barDescription(entry:{parts:number;labor:number;total:number;unallocated:number;interest:number},index:number){return `${labels[index]}: peças ${money(entry.parts)}, mão de obra ${money(entry.labor)}, sem detalhamento ${money(entry.unallocated)}, juros ${money(entry.interest)}, total ${money(entry.total)}`}
+const labels=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
+</script>
+<template><div class="expense-chart"><div class="chart-y"><span>{{money(max)}}</span><span>{{money(max/2)}}</span><span>R$ 0</span></div><div class="chart-plot"><div class="chart-grid"><i></i><i></i><i></i></div><div class="chart-bars"><div v-for="(m,i) in data" :key="m.month" class="bar-column"><div class="bar-track" :aria-label="barDescription(m,i)" tabindex="0" :title="barDescription(m,i)"><div class="bar-parts" :style="{height:m.parts/max*100+'%'}"></div><div class="bar-labor" :style="{height:m.labor/max*100+'%'}"></div><div class="bar-interest" :style="{height:m.interest/max*100+'%'}"></div><div class="bar-unallocated" :style="{height:m.unallocated/max*100+'%'}"></div></div><span>{{labels[i]}}</span></div></div><p v-if="sum===0" class="chart-empty">Seus gastos aparecerão aqui ao registrar serviços.</p></div></div><div class="chart-legend"><span><i class="parts-dot"></i>Peças</span><span><i class="labor-dot"></i>Mão de obra</span><span v-if="data.some(m=>m.interest>0)"><i class="interest-dot"></i>Juros</span><span v-if="data.some(m=>m.unallocated>0)"><i class="unallocated-dot"></i>Sem detalhamento</span></div></template>

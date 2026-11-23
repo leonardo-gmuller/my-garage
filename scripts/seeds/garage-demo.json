@@ -1,0 +1,97 @@
+{
+  "key": "garage-public-demo-v1",
+  "vehicleNickname": "Saveiro · Demo",
+  "mechanic": {
+    "name": "Mecânico de demonstração",
+    "workshop": "Oficina de demonstração",
+    "specialty": "Suspensão e motor"
+  },
+  "service": {
+    "description": "DEMO · Revisão da Saveiro — orçamento parcial",
+    "category": "General",
+    "serviceType": "Replacement",
+    "componentKeys": [
+      "engine",
+      "suspension"
+    ],
+    "primaryComponentKey": "suspension",
+    "subcomponentKeys": {
+      "engine": [
+        "spark-plugs",
+        "ignition-cables",
+        "filters",
+        "belts"
+      ],
+      "suspension": [
+        "shock-absorbers",
+        "bushings"
+      ]
+    },
+    "items": [
+      {
+        "reference": "DEMO-S01",
+        "name": "Amortecedor dianteiro",
+        "quantity": 2,
+        "unitCost": 280
+      },
+      {
+        "reference": "DEMO-S02",
+        "name": "Kit de amortecedor",
+        "quantity": 2,
+        "unitCost": 90
+      },
+      {
+        "reference": "DEMO-M01",
+        "name": "Jogo de cabos de ignição",
+        "quantity": 1,
+        "unitCost": 160
+      },
+      {
+        "reference": "DEMO-M02",
+        "name": "Velas de ignição",
+        "quantity": 4,
+        "unitCost": 35
+      },
+      {
+        "reference": "DEMO-S03",
+        "name": "Buchas de suspensão",
+        "quantity": 2,
+        "unitCost": 45
+      },
+      {
+        "reference": "DEMO-M03",
+        "name": "Filtro de óleo",
+        "quantity": 1,
+        "unitCost": 30
+      },
+      {
+        "reference": "DEMO-M04",
+        "name": "Óleo do motor",
+        "quantity": 4,
+        "unitCost": 55
+      }
+    ],
+    "laborCost": 450,
+    "payments": [
+      {
+        "scope": "Parts",
+        "method": "CreditCard",
+        "installments": 6,
+        "totalCharged": null
+      },
+      {
+        "scope": "Labor",
+        "method": "CreditCard",
+        "installments": 3,
+        "totalCharged": 495
+      }
+    ],
+    "reportedPartsCharge": 1518,
+    "partsBudgetComplete": false
+  },
+  "schedule": {
+    "componentKey": "suspension",
+    "description": "DEMO · Completar orçamento e conferir o histórico",
+    "daysFromSeed": 7
+  }
+}

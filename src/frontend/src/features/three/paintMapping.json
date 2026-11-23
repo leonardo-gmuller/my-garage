@@ -1,0 +1,5 @@
+{
+  "description": "Saveiro_3D.glb: external painted panels only. Diego is also shared with the interior, so both group and material must match.",
+  "groups": ["chassis", "bonnet_ok", "door_rf_01", "boot_ok", "bump_fro01", "bump_rea01"],
+  "materials": ["Diego"]
+}

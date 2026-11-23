@@ -1,0 +1,110 @@
+/* Approved illustrated master: one cached image, displayed without altering its artwork.
+   Emblem source box: (248, 200, 762, 707). Wordmark: (76, 914, 1104, 180).
+   The alpha mask retains the exact lettering and adapts it to the current theme. */
+.brand-logo {
+  --brand-emblem-width: 58px;
+  --brand-wordmark-width: 174px;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 12px;
+  max-width: 100%;
+  vertical-align: middle;
+}
+.brand-logo__emblem {
+  display: block;
+  position: relative;
+  width: var(--brand-emblem-width);
+  aspect-ratio: 762 / 707;
+  overflow: hidden;
+  flex: 0 0 auto;
+  isolation: isolate;
+}
+.brand-logo__emblem img {
+  position: absolute;
+  display: block;
+  width: 164.56693%;
+  max-width: none;
+  height: auto;
+  left: -32.54593%;
+  top: -28.28854%;
+}
+.brand-logo__signature { display: flex; flex-direction: column; min-width: 0; gap: 5px; }
+.brand-logo__wordmark {
+  display: block;
+  width: var(--brand-wordmark-width);
+  aspect-ratio: 1104 / 180;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: calc(var(--brand-wordmark-width) * .125);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -.8px;
+  white-space: nowrap;
+}
+.brand-logo__tagline, .brand .brand-logo__tagline {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: .05px;
+}
+.brand-logo--stacked {
+  --brand-emblem-width: 206px;
+  --brand-wordmark-width: 258px;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+}
+.brand-logo--stacked .brand-logo__signature { align-items: center; gap: 9px; }
+.brand-logo--stacked .brand-logo__tagline { font-size: 11px; }
+.brand-logo--symbol { --brand-emblem-width: 78px; }
+.brand-logo--wordmark { --brand-wordmark-width: 124px; }
+.app-header .brand { min-width: 0; border-radius: 8px; }
+.auth-story .brand { align-self: flex-start; }
+.auth-form .auth-brand { display: block; margin-bottom: 24px; }
+.boot .brand-logo { --brand-emblem-width: 100px; }
+.page-footer .brand-logo { opacity: .82; }
+
+@supports ((mask-image: url('')) or (-webkit-mask-image: url(''))) {
+  .brand-logo__wordmark {
+    color: transparent;
+    font-size: 0;
+    background-color: var(--text-primary);
+    -webkit-mask-image: url('/brand/minha-garagem-cobre-v1.png');
+    mask-image: url('/brand/minha-garagem-cobre-v1.png');
+    -webkit-mask-size: 113.586957% 696.666667%;
+    mask-size: 113.586957% 696.666667%;
+    -webkit-mask-position: 50.666667% 85.102421%;
+    mask-position: 50.666667% 85.102421%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+}
+@media (max-width: 760px) {
+  .app-header .brand-logo { --brand-emblem-width: 46px; --brand-wordmark-width: 142px; gap: 9px; }
+  .app-header .brand-logo__tagline { font-size: 8px; }
+  .auth-story .brand-logo--stacked {
+    --brand-emblem-width: 68px;
+    --brand-wordmark-width: 180px;
+    flex-direction: row;
+    gap: 14px;
+  }
+  .auth-story .brand-logo--stacked .brand-logo__signature { align-items: flex-start; gap: 5px; }
+  .auth-story .brand-logo--stacked .brand-logo__tagline { font-size: 9px; }
+  .auth-form .auth-brand { display: none; }
+}
+@media (max-width: 380px) {
+  .app-header { gap: 12px; }
+  .app-header .brand-logo { --brand-emblem-width: 40px; --brand-wordmark-width: 124px; gap: 8px; }
+  .app-header .brand-logo__tagline { font-size: 7px; }
+  .auth-story .brand-logo--stacked { --brand-emblem-width: 58px; --brand-wordmark-width: 168px; }
+}
+@media (forced-colors: active) {
+  .brand-logo__wordmark { color: CanvasText; background-color: transparent; }
+  @supports ((mask-image: url('')) or (-webkit-mask-image: url(''))) {
+    .brand-logo__wordmark { color: transparent; forced-color-adjust: none; background-color: CanvasText; }
+  }
+}

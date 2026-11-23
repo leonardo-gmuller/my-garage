@@ -1,0 +1,222 @@
+{
+  "description": "Surface roles for Saveiro_3D.glb. Match both mapped group and source material; never classify by brightness alone. Explicit lens exceptions: windscre01 also contains headlight covers and rear lamp shells.",
+  "profiles": {
+    "plastic": {
+      "color": "#202225",
+      "metalness": 0.03,
+      "roughness": 0.68,
+      "envMapIntensity": 0.5
+    },
+    "rubber": {
+      "color": "#141517",
+      "metalness": 0,
+      "roughness": 0.88,
+      "envMapIntensity": 0.3
+    },
+    "alloy": {
+      "color": "#85898e",
+      "metalness": 0.82,
+      "roughness": 0.29,
+      "envMapIntensity": 1.1
+    },
+    "rack": {
+      "color": "#53585d",
+      "metalness": 0.72,
+      "roughness": 0.34,
+      "envMapIntensity": 1
+    },
+    "glass": {
+      "color": "#171b1e",
+      "metalness": 0.08,
+      "roughness": 0.12,
+      "envMapIntensity": 1,
+      "transparent": true,
+      "opacity": 0.78,
+      "depthWrite": false
+    },
+    "reflector": {
+      "color": "#c1c6cb",
+      "metalness": 0.92,
+      "roughness": 0.17,
+      "envMapIntensity": 1.2
+    },
+    "lens": {
+      "color": "#a8b2ba",
+      "metalness": 0.12,
+      "roughness": 0.16,
+      "envMapIntensity": 1,
+      "transparent": true,
+      "opacity": 0.22,
+      "depthWrite": false
+    },
+    "redLens": {
+      "color": "#a90916",
+      "metalness": 0.16,
+      "roughness": 0.23,
+      "envMapIntensity": 0.9
+    },
+    "indicator": {
+      "color": "#c57615",
+      "metalness": 0.12,
+      "roughness": 0.25,
+      "envMapIntensity": 0.85
+    },
+    "badge": {
+      "color": "#9a9da0",
+      "metalness": 0.8,
+      "roughness": 0.25,
+      "envMapIntensity": 1
+    }
+  },
+  "rules": [
+    {
+      "groups": [
+        "chassis",
+        "door_rf_01",
+        "bonnet_ok",
+        "boot_ok",
+        "bump_fro01",
+        "bump_rea01",
+        "Friso",
+        "underbody",
+        "suspensao",
+        "windscre01",
+        "farol"
+      ],
+      "materials": [
+        "preto__spec_1",
+        "plastico__spec_1"
+      ],
+      "profile": "plastic"
+    },
+    {
+      "groups": [
+        "rack",
+        "rack01"
+      ],
+      "materials": [
+        "preto__spec_1"
+      ],
+      "profile": "rack"
+    },
+    {
+      "groups": [
+        "wheel_1"
+      ],
+      "materials": [
+        "__Burnt_Umber_1",
+        "plastico__spec_1"
+      ],
+      "profile": "rubber"
+    },
+    {
+      "groups": [
+        "wheel_1"
+      ],
+      "materials": [
+        "__DimGray_",
+        "Matte__FF7E7E7E2"
+      ],
+      "profile": "alloy"
+    },
+    {
+      "groups": [
+        "door_rf_01",
+        "windscre01",
+        "chassis"
+      ],
+      "materials": [
+        "__Translucent_Glass_Gray_1",
+        "preto__spec_tra1",
+        "preto__trans_1"
+      ],
+      "profile": "glass"
+    },
+    {
+      "groups": [
+        "farol"
+      ],
+      "materials": [
+        "__DimGray_",
+        "material"
+      ],
+      "profile": "reflector"
+    },
+    {
+      "groups": [
+        "farol"
+      ],
+      "materials": [
+        "Matte__FF4B4B4B1"
+      ],
+      "profile": "lens"
+    },
+    {
+      "groups": [
+        "bump_fro01"
+      ],
+      "materials": [
+        "__Translucent_Glass_Gray_1"
+      ],
+      "profile": "lens"
+    },
+    {
+      "groups": [
+        "lanterna",
+        "chassis"
+      ],
+      "materials": [
+        "Rosso_Alfa",
+        "Matte__FFCC1"
+      ],
+      "profile": "redLens"
+    },
+    {
+      "groups": [
+        "lanterna"
+      ],
+      "materials": [
+        "_0132_LightGray"
+      ],
+      "profile": "lens"
+    },
+    {
+      "groups": [
+        "lanterna",
+        "farol"
+      ],
+      "materials": [
+        "Diego1"
+      ],
+      "profile": "indicator"
+    },
+    {
+      "groups": [
+        "SAVEIRO__CROSS"
+      ],
+      "materials": [
+        "material"
+      ],
+      "profile": "badge"
+    }
+  ],
+  "meshOverrides": [
+    {
+      "meshes": [
+        "windscre01__ID4035__504",
+        "windscre01__ID4035__505",
+        "windscre01__ID4075__510",
+        "windscre01__ID4075__511",
+        "windscre01__ID4083__512"
+      ],
+      "profile": "lens"
+    },
+    {
+      "meshes": [
+        "windscre01__ID4051__507",
+        "windscre01__ID4059__508"
+      ],
+      "profile": "redLens"
+    }
+  ]
+}

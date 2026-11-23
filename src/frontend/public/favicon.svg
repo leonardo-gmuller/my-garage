@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Minha Garagem</title>
+  <rect width="64" height="64" rx="14" fill="#101112"/>
+  <path d="M9 46V27q0-5 5-8L28 9q4-3 8 0l14 10q5 3 5 8v19q0 9-9 9H18q-9 0-9-9Z" fill="#202326" stroke="#c7966a" stroke-width="4" stroke-linejoin="round"/>
+  <path d="m18 35 5-11h18l5 11q4 0 4 5v7H14v-7q0-5 4-5Z" fill="#cfcbc4"/>
+  <path d="m24 28-3 7h22l-3-7Z" fill="#202326"/>
+  <path d="M18 40h7m14 0h7" stroke="#202326" stroke-width="3"/>
+  <path d="M19 46v5m26-5v5" stroke="#101112" stroke-width="5" stroke-linecap="round"/>
+  <path d="M12 54q18-12 42-8" fill="none" stroke="#c7966a" stroke-width="4" stroke-linecap="round"/>
+</svg>

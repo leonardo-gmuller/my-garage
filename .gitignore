@@ -1,0 +1,26 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+.tools/
+.local/
+.env
+.env.*
+!.env.example
+**/test-results/
+**/playwright-report/
+.DS_Store
+
+# Optional local assets: redistribution rights have not been established.
+/src/frontend/public/models/Saveiro_3D.glb
+/src/frontend/public/models/Saveiro_3D_grupos.json
+# Local editor, logs and private keys.
+.vs/
+*.user
+*.suo
+*.log
+TestResults/
+*.pfx
+*.p12
+*.pem
+**/appsettings.Local.json

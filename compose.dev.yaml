@@ -1,0 +1,10 @@
+# Used with compose.yaml and a separate project: my-garage-dev.
+# This database has its own volume; the complete Docker stack is unaffected.
+services:
+  db:
+    ports:
+      - '127.0.0.1:${DB_PORT:-55432}:5432'
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+volumes:
+  postgres_dev_data:

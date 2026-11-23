@@ -1,0 +1,101 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Minha Garagem — API (.NET)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "garage: debug prepare",
+      "program": "${workspaceFolder}/src/backend/MinhaGaragem.Api/bin/Debug/net10.0/MinhaGaragem.Api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/backend/MinhaGaragem.Api",
+      "envFile": "${workspaceFolder}/.local/vscode.env",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "justMyCode": true,
+      "requireExactSource": true,
+      "checkForDevCert": false,
+      "logging": {
+        "exceptions": true,
+        "moduleLoad": false
+      }
+    },
+    {
+      "name": "Minha Garagem — Vue (Chrome)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "preLaunchTask": "garage: vite",
+      "postDebugTask": "garage: debug stop",
+      "url": "http://127.0.0.1:5175",
+      "webRoot": "${workspaceFolder}/src/frontend",
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/src/frontend/**",
+        "!**/node_modules/**"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ]
+    },
+    {
+      "name": "Minha Garagem — API (Full Stack)",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/backend/MinhaGaragem.Api/bin/Debug/net10.0/MinhaGaragem.Api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/backend/MinhaGaragem.Api",
+      "envFile": "${workspaceFolder}/.local/vscode.env",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "justMyCode": true,
+      "requireExactSource": true,
+      "checkForDevCert": false,
+      "logging": {
+        "exceptions": true,
+        "moduleLoad": false
+      },
+      "postDebugTask": "garage: debug stop",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Minha Garagem — Vue (Full Stack)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "preLaunchTask": "garage: vite after API",
+      "url": "http://127.0.0.1:5175",
+      "webRoot": "${workspaceFolder}/src/frontend",
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/src/frontend/**",
+        "!**/node_modules/**"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ],
+      "presentation": {
+        "hidden": true
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Minha Garagem — Full Stack Debug",
+      "preLaunchTask": "garage: debug prepare",
+      "configurations": [
+        "Minha Garagem — API (Full Stack)",
+        "Minha Garagem — Vue (Full Stack)"
+      ],
+      "stopAll": true
+    }
+  ]
+}

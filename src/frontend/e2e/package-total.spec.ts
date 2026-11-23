@@ -1,0 +1,57 @@
+import { test,expect } from '@playwright/test'
+import { signIn,cleanup,selectTestVehicle } from './support/session'
+test.afterEach(async({page})=>cleanup(page))
+
+test('one workshop visit accepts a closed total with several replacements and honest financial reporting',async({page},testInfo)=>{
+ test.setTimeout(180000)
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
+ await page.emulateMedia({reducedMotion:'reduce'})
+ const navigate=async(name:string)=>{const menu=page.getByRole('button',{name:'Abrir navegação'});if(await menu.isVisible())await menu.click();await page.getByRole('link',{name,exact:true}).click()}
+ await signIn(page,'/historico')
+ await expect(page.getByRole('combobox',{name:'Veículo selecionado',exact:true})).toContainText('Saveiro')
+ await page.getByRole('button',{name:'Registrar serviço',exact:true}).click()
+ const dialog=page.getByRole('dialog',{name:'Registrar serviço',exact:true})
+ await dialog.getByLabel('Descrição',{exact:true}).fill('Visita à oficina: amortecedores, cabos e velas')
+ await dialog.getByLabel('Motor',{exact:true}).check();await dialog.getByLabel('Suspensão',{exact:true}).check()
+ await dialog.getByLabel('Amortecedores',{exact:true}).check();await dialog.getByLabel('Velas',{exact:true}).check();await dialog.getByLabel('Cabos de vela',{exact:true}).check()
+ await expect(dialog.getByRole('combobox',{name:'Como deseja informar o valor?',exact:true})).toContainText('Valor total fechado')
+ await expect(dialog.getByLabel('Mão de obra (R$)',{exact:true})).toHaveCount(0)
+ await dialog.getByLabel('Valor total cobrado (R$)',{exact:true}).fill('1000')
+ for(const [index,name,qty]of [[0,'Amortecedores','2'],[1,'Cabos de vela','1'],[2,'Velas','4']] as const){
+  await dialog.getByRole('button',{name:'Adicionar peça',exact:true}).click()
+  await dialog.locator('#item-name-'+index).fill(name);await dialog.locator('#item-quantity-'+index).fill(qty)
+ }
+ await expect(dialog.getByLabel('Valor unitário (R$)',{exact:true})).toHaveCount(0)
+ await dialog.getByLabel('Valor total cobrado (R$)',{exact:true}).scrollIntoViewIfNeeded()
+ await page.screenshot({path:`test-results/package-form-${testInfo.project.name}.png`,fullPage:false,scale:'css'})
+ await dialog.getByRole('button',{name:'Salvar serviço',exact:true}).click();await expect(dialog).toBeHidden()
+ const record=page.locator('.timeline-record');await expect(record).toHaveCount(1)
+ await expect(record).toContainText('Valor total fechado · sem detalhamento');await expect(record.locator('.record-totals')).toContainText('R$ 1.000,00')
+ await expect(record.locator('.record-parts')).toContainText('Incluído no total');await expect(record.locator('.record-parts')).not.toContainText('R$ 0,00')
+ await page.reload();await selectTestVehicle(page);await expect(record).toHaveCount(1)
+ await page.getByRole('button',{name:'Editar serviço Visita à oficina: amortecedores, cabos e velas',exact:true}).click()
+ const edit=page.getByRole('dialog',{name:'Editar serviço',exact:true})
+ await expect(edit.getByLabel('Valor total cobrado (R$)',{exact:true})).toHaveValue('1000')
+ await expect(edit.getByLabel('Amortecedores',{exact:true})).toBeChecked();await expect(edit.getByLabel('Velas',{exact:true})).toBeChecked()
+ await edit.getByRole('button',{name:'Cancelar',exact:true}).click();await expect(edit).toBeHidden()
+ await navigate('Financeiro')
+ const totals=page.locator('.finance-totals');await expect(totals).toContainText('Sem detalhamento');await expect(totals.locator('> div').filter({hasText:'Total acumulado'})).toContainText('R$ 1.000,00')
+ await expect(totals.locator('> div').filter({hasText:'Sem detalhamento'})).toContainText('R$ 1.000,00')
+ await expect(page.locator('.bar-unallocated')).toHaveCount(12)
+ expect(await page.locator('.bar-unallocated').evaluateAll(elements=>elements.some(el=>el.getBoundingClientRect().height>0))).toBeTruthy()
+ await page.screenshot({path:`test-results/package-finance-${testInfo.project.name}.png`,fullPage:false,scale:'css'})
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy()
+ // The same visit can later be detailed when its invoice becomes available.
+ await navigate('Histórico de serviços')
+ await page.getByRole('button',{name:'Editar serviço Visita à oficina: amortecedores, cabos e velas',exact:true}).click()
+ await edit.getByRole('combobox',{name:'Como deseja informar o valor?',exact:true}).click();await page.getByRole('option',{name:'Valores detalhados',exact:true}).click()
+ const prices:Record<string,string>={Amortecedores:'300','Cabos de vela':'100',Velas:'25'}
+ for(const row of await edit.locator('.item-fields').all()){const name=await row.getByLabel('Peça',{exact:true}).inputValue();await row.getByLabel('Valor unitário (R$)',{exact:true}).fill(prices[name]!);await row.getByLabel('Valor unitário (R$)',{exact:true}).press('Tab')}
+ await edit.getByLabel('Mão de obra (R$)',{exact:true}).fill('200');await edit.getByLabel('Mão de obra (R$)',{exact:true}).press('Tab')
+ await edit.getByRole('button',{name:'Salvar serviço',exact:true}).click();await expect(edit).toBeHidden()
+ await expect(record).toHaveCount(1);await expect(record.locator('.record-totals')).toContainText('Peças');await expect(record.locator('.record-totals')).toContainText('R$ 1.000,00')
+ await navigate('Financeiro');await expect(totals).not.toContainText('Sem detalhamento');await expect(totals).toContainText('R$ 800,00');await expect(totals).toContainText('R$ 200,00')
+ await navigate('Meus veículos');page.once('dialog',d=>d.accept());await page.getByRole('button',{name:'Excluir Saveiro E2E',exact:true}).click()
+ await expect(page.getByRole('button',{name:'Excluir Saveiro E2E',exact:true})).toHaveCount(0)
+ expect(errors).toEqual([])
+})

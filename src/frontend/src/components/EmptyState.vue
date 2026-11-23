@@ -1,0 +1,1 @@
+<script setup lang="ts">import { Wrench } from 'lucide-vue-next';defineProps<{title:string;description:string}>()</script><template><div class="empty-state"><Wrench :size="24"/><h3>{{title}}</h3><p>{{description}}</p><slot/></div></template>
