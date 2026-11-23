@@ -141,6 +141,10 @@ O EF gera migrations UTF-8 com BOM, preservadas pela regra correspondente do `.e
 
 **SDK 10 não localizado:** confira `dotnet --list-sdks`, `global.json` e `./scripts/dotnet-local.sh --version`. Use SDK 10 no PATH para o serviço de linguagem; o wrapper e o arquivo de debug gerado resolvem o SDK privado deste checkout.
 
+## Inteligência artificial e formatação
+
+A IA é opcional e usa credenciais apenas do backend. Configuração, User Secrets, testes fake e breakpoints estão em [ai-learning.md](ai-learning.md). Use `make ai-test` para testes focados, `make format` para aplicar CSharpier e `make format-check` para conferir. `make lint` também exige CSharpier.
+
 ## Testes de navegador
 
 Use uma instalação isolada, com credenciais de demonstração e sem dados pessoais. Inicie a aplicação, instale o Chromium do Playwright e execute:

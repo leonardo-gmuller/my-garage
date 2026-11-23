@@ -27,6 +27,7 @@ jobs:
       - run: dotnet build -c Release --no-restore
       - run: dotnet test -c Release --no-build --logger trx
       - run: dotnet tool restore
+      - run: dotnet csharpier check src/backend tests
       - run: dotnet ef migrations has-pending-model-changes --project src/backend/MinhaGaragem.Infrastructure --startup-project src/backend/MinhaGaragem.Api --no-build --configuration Release
   frontend:
     runs-on: ubuntu-latest

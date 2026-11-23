@@ -27,3 +27,11 @@ export const date=(v:string|null)=>v ? new Intl.DateTimeFormat('pt-BR').format(n
 export const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())
 
 export interface ComponentSummary {pendingPaymentCount:number;serviceCount:number;totalCost:number;lastService:RecordEntry|null;recent:RecordEntry[];nextMaintenance:Schedule|null}
+
+export interface MaintenanceAiStatus {available:boolean;maxMessageLength:number;reason:string|null}
+export interface MaintenanceAiDraft {
+ vehicleId:string;description:string;category:string|null;serviceType:string|null;mileage:number|null;totalCost:number|null;serviceDate:string|null;workshop:string|null;notes:string|null;
+ components:{id:string;key:string;name:string;subcomponents:Subcomponent[]}[];
+ items:{name:string;quantity:number|null}[];missingFields:string[];warnings:string[];promptVersion:string;
+}
+export const aiFieldLabels:Record<string,string>={serviceDate:'Data do serviço',mileage:'Quilometragem (opcional)',totalCost:'Valor total',category:'Categoria',serviceType:'Tipo de serviço',workshop:'Oficina (opcional)',components:'Componentes envolvidos',itemQuantities:'Quantidade das peças'}

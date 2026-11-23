@@ -58,7 +58,7 @@ function ensureEnv() {
 const pgValue = value => '"' + String(value).replaceAll('"', '""') + '"'
 function connection() { return `Host=127.0.0.1;Port=${config.DB_PORT};Database=${pgValue(config.POSTGRES_DB)};Username=${pgValue(config.POSTGRES_USER)};Password=${pgValue(config.POSTGRES_PASSWORD)}` }
 function hostEnv() {
-  return { ...process.env, ASPNETCORE_ENVIRONMENT: 'Development', ASPNETCORE_URLS: apiUrl,
+  return { ...process.env, ...Object.fromEntries(["AI_ENABLED", "AI_PROVIDER", "GEMINI_API_KEY", "GEMINI_MODEL", "AI_TIMEOUT_SECONDS", "AI_MAX_INPUT_CHARS", "AI_MAX_OUTPUT_TOKENS", "AI_REQUESTS_PER_MINUTE", "AI_REQUESTS_PER_USER_PER_DAY", "AI_REQUESTS_PER_DAY"].filter(key=>config[key]!==undefined).map(key=>[key,config[key]])), ASPNETCORE_ENVIRONMENT: 'Development', ASPNETCORE_URLS: apiUrl,
     ConnectionStrings__Garage: connection(), Database__MigrateOnStartup: 'false',
     Bootstrap__Email: config.BOOTSTRAP_EMAIL || '', Bootstrap__Password: config.BOOTSTRAP_PASSWORD || '',
     Storage__Path: join(local, 'dev-uploads'), DataProtection__Path: join(local, 'dev-keys'),
@@ -201,8 +201,8 @@ async function debugPrepare() {
   if (!match) throw new Error('Não foi possível localizar o runtime .NET 10 para o debugger.')
   const sdkRoot = dirname(match[1])
   const env = { ...hostEnv(), DOTNET_ROOT: sdkRoot, DOTNET_CLI_HOME: join(local, 'dotnet-home'), NUGET_PACKAGES: join(local, 'nuget') }
-  const keys = ['ASPNETCORE_ENVIRONMENT', 'ASPNETCORE_URLS', 'ConnectionStrings__Garage', 'Database__MigrateOnStartup', 'Storage__Path', 'DataProtection__Path', 'Bootstrap__Email', 'Bootstrap__Password', 'DOTNET_ROOT', 'DOTNET_CLI_HOME', 'NUGET_PACKAGES']
-  writeFileSync(join(local, 'vscode.env'), keys.map(k => `${k}='${env[k]}'`).join('\n') + '\n', { mode: 0o600 })
+  const keys = ['ASPNETCORE_ENVIRONMENT', 'ASPNETCORE_URLS', 'ConnectionStrings__Garage', 'Database__MigrateOnStartup', 'Storage__Path', 'DataProtection__Path', 'Bootstrap__Email', 'Bootstrap__Password', 'DOTNET_ROOT', 'DOTNET_CLI_HOME', 'NUGET_PACKAGES','AI_ENABLED','AI_PROVIDER','GEMINI_API_KEY','GEMINI_MODEL','AI_TIMEOUT_SECONDS','AI_MAX_INPUT_CHARS','AI_MAX_OUTPUT_TOKENS','AI_REQUESTS_PER_MINUTE','AI_REQUESTS_PER_USER_PER_DAY','AI_REQUESTS_PER_DAY']
+  writeFileSync(join(local, 'vscode.env'), keys.filter(k=>env[k]!==undefined).map(k => `${k}='${env[k]}'`).join('\n') + '\n', { mode: 0o600 })
   chmodSync(join(local, 'vscode.env'), 0o600)
   say('DEBUG_READY — build Debug, migrations e ambiente privado preparados; API será iniciada pelo debugger.')
 }
@@ -252,11 +252,14 @@ async function main() {
     case 'debug-prepare': await debugPrepare(); break
     case 'migrate': await database(); await migrate(); break
     case 'build': await ensureBackend(); await ensureFrontend(); await dotnet(['build', 'MinhaGaragem.sln', '-c', config.CONFIGURATION, '--no-restore']); await run('npm', ['run', 'build'], { cwd: resolve(frontend) }); break
-    case 'test': await database(); await ensureBackend(); await dotnet(['test', 'MinhaGaragem.sln', '-c', config.CONFIGURATION, '--no-restore'], { env: { ...hostEnv(), GARAGE_TEST_CONNECTION: config.GARAGE_TEST_CONNECTION || connection() } }); break
+    case 'format': await ensureBackend(); await dotnet(['csharpier','format','src/backend','tests']); break
+    case 'format-check': await ensureBackend(); await dotnet(['csharpier','check','src/backend','tests']); break
+    case 'ai-test': await database(); await ensureBackend(); await dotnet(['test','MinhaGaragem.sln','-c',config.CONFIGURATION,'--no-restore','--filter','Category=AI'],{env:{...hostEnv(),AI_ENABLED:'false',GEMINI_API_KEY:'',GARAGE_TEST_CONNECTION:config.GARAGE_TEST_CONNECTION||connection()}}); break
+    case 'test': await database(); await ensureBackend(); await dotnet(['test', 'MinhaGaragem.sln', '-c', config.CONFIGURATION, '--no-restore'], { env: { ...hostEnv(), AI_ENABLED: 'false', GEMINI_API_KEY: '', GARAGE_TEST_CONNECTION: config.GARAGE_TEST_CONNECTION || connection() } }); break
     case 'test-e2e': await ensureFrontend(); await run('npm', ['run', 'test:e2e'], { cwd: resolve(frontend), env: { ...hostEnv(), GARAGE_BASE_URL: frontUrl } }); break
     case 'lint':
       await ensureBackend(); await ensureFrontend()
-      await dotnet(['format', 'whitespace', 'MinhaGaragem.sln', '--verify-no-changes', '--no-restore'])
+      await dotnet(['csharpier', 'check', 'src/backend', 'tests'])
       await run('npm', ['run', 'typecheck'], { cwd: resolve(frontend) })
       await run(process.execPath, ['scripts/validate-development.mjs']); break
     case 'logs': {

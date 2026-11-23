@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <UserSecretsId>MinhaGaragem.Api.Development</UserSecretsId>
+    </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="../MinhaGaragem.Application/MinhaGaragem.Application.csproj" /><ProjectReference Include="../MinhaGaragem.Infrastructure/MinhaGaragem.Infrastructure.csproj" /><PackageReference
             Include="Microsoft.AspNetCore.OpenApi"

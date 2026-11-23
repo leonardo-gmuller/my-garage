@@ -21,6 +21,16 @@ services:
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__Garage: Host=db;Database=${POSTGRES_DB:-minha_garagem};Username=${POSTGRES_USER:-garage};Password=${POSTGRES_PASSWORD}
       Database__MigrateOnStartup: 'true'
+      AI_ENABLED: ${AI_ENABLED:-false}
+      AI_PROVIDER: ${AI_PROVIDER:-Gemini}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      AI_TIMEOUT_SECONDS: ${AI_TIMEOUT_SECONDS:-30}
+      AI_MAX_INPUT_CHARS: ${AI_MAX_INPUT_CHARS:-4000}
+      AI_MAX_OUTPUT_TOKENS: ${AI_MAX_OUTPUT_TOKENS:-2048}
+      AI_REQUESTS_PER_MINUTE: ${AI_REQUESTS_PER_MINUTE:-3}
+      AI_REQUESTS_PER_USER_PER_DAY: ${AI_REQUESTS_PER_USER_PER_DAY:-20}
+      AI_REQUESTS_PER_DAY: ${AI_REQUESTS_PER_DAY:-100}
       Bootstrap__Email: ${BOOTSTRAP_EMAIL:-}
       Bootstrap__Password: ${BOOTSTRAP_PASSWORD:-}
       Storage__Path: /data/uploads

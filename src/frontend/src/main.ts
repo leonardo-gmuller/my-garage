@@ -11,6 +11,7 @@ import './style.css'
 import './styles/glass.css'
 import './styles/brand.css'
 import './styles/mechanics.css'
+import './styles/ai.css'
 import App from './App.vue'
 import { router } from './router'
 const locale={firstDayOfWeek:0,dayNames:['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'],dayNamesShort:['dom','seg','ter','qua','qui','sex','sáb'],dayNamesMin:['D','S','T','Q','Q','S','S'],monthNames:['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'],monthNamesShort:['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],today:'Hoje',clear:'Limpar',chooseDate:'Escolher data',emptyMessage:'Nenhuma opção encontrada',emptyFilterMessage:'Nenhum resultado',choose:'Selecionar',upload:'Enviar',cancel:'Cancelar',pending:'Selecionado',fileSizeTypes:['B','KB','MB','GB','TB'],aria:{showPassword:'Mostrar senha',hidePassword:'Ocultar senha'}}

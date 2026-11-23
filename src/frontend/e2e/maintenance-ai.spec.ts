@@ -1,0 +1,85 @@
+import {test,expect} from '@playwright/test'
+import {signIn,cleanup,selectTestVehicle} from './support/session'
+test.afterEach(async({page})=>cleanup(page))
+
+test('AI draft uses the existing form and saves only after explicit human confirmation',async({page},testInfo)=>{
+ test.setTimeout(150000)
+ await page.emulateMedia({reducedMotion:'reduce'})
+ const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message))
+ let writes=0,interpretations=0
+ page.on('request',request=>{if(request.method()==='POST'&&/\/api\/vehicles\/[^/]+\/records$/.test(request.url()))writes++})
+ await page.route('**/api/ai/maintenance/status',route=>route.fulfill({json:{available:true,maxMessageLength:4000,reason:null}}))
+ await signIn(page,'/historico')
+ const vehicles=(await(await page.request.get('/api/vehicles')).json()).items
+ const vehicle=vehicles.find((v:{nickname:string})=>v.nickname==='Saveiro E2E')
+ const catalogue=await(await page.request.get('/api/vehicles/'+vehicle.id+'/components')).json()
+ const components=['suspension','engine'].map(key=>{
+  const component=catalogue.find((c:{key:string})=>c.key===key)
+  return {...component,subcomponents:component.subcomponents.filter((s:{key:string})=>['shock-absorbers','ignition-cables','spark-plugs'].includes(s.key))}
+ })
+ const message='Troquei amortecedores, cabos e velas. Paguei 850 reais e o carro estava com 125 mil quilômetros.'
+ await page.route('**/api/ai/maintenance/interpret',route=>{
+  interpretations++;expect(route.request().postDataJSON()).toEqual({vehicleId:vehicle.id,message})
+  return route.fulfill({json:{vehicleId:vehicle.id,description:'Troca de amortecedores, cabos e velas — teste IA',category:'General',serviceType:'Replacement',mileage:125000,totalCost:850,serviceDate:null,workshop:null,notes:null,components,items:[{name:'amortecedores',quantity:null},{name:'cabos',quantity:null},{name:'velas',quantity:null}],missingFields:['serviceDate','workshop','itemQuantities'],warnings:['Confirme a data e a quantidade de cada peça.'],promptVersion:'maintenance-v1'}})
+ })
+ await page.getByRole('button',{name:'Registrar com IA',exact:true}).click()
+ const intake=page.getByRole('dialog',{name:'Registrar com IA',exact:true})
+ await intake.getByLabel('Descrição da manutenção',{exact:true}).fill(message)
+ await page.screenshot({path:`test-results/ai-intake-${testInfo.project.name}.png`,scale:'css',animations:'disabled'})
+ await intake.getByRole('button',{name:'Interpretar e revisar',exact:true}).click()
+ const review=page.getByRole('dialog',{name:'Revisar registro da IA',exact:true})
+ await expect(review).toBeVisible();await expect(review.getByLabel('Sugestão da IA')).toContainText('Nenhum serviço foi salvo')
+ await expect(review.getByLabel('Data do serviço',{exact:true})).toHaveValue('')
+ await expect(review.getByLabel('Valor total cobrado (R$)',{exact:true})).toHaveValue('850')
+ await expect(review.getByLabel('Valor unitário (R$)',{exact:true})).toHaveCount(0)
+ await review.getByRole('combobox',{name:'Como deseja informar o valor?',exact:true}).click();await page.getByRole('option',{name:'Valores detalhados',exact:true}).click()
+ await expect(review.locator('#item-cost-0')).toHaveValue('');await expect(review.getByLabel('Mão de obra (R$)',{exact:true})).toHaveValue('')
+ await expect(review.locator('.form-actions strong')).toHaveText('A informar')
+ await review.getByRole('combobox',{name:'Como deseja informar o valor?',exact:true}).click();await page.getByRole('option',{name:'Valor total fechado',exact:true}).click()
+ await expect(review.locator('#item-quantity-0')).toHaveValue('')
+ expect(writes).toBe(0)
+ await page.screenshot({path:`test-results/ai-review-top-${testInfo.project.name}.png`,scale:'css',animations:'disabled'})
+ await review.getByRole('button',{name:'Confirmar e salvar serviço',exact:true}).click()
+ await expect(review).toBeVisible();expect(writes).toBe(0)
+ await review.getByLabel('Data do serviço',{exact:true}).fill('01/11/2026')
+ for(const[index,value]of['2','1','4'].entries()){await review.locator('#item-quantity-'+index).fill(value);await review.locator('#item-quantity-'+index).press('Tab')}
+ await review.getByLabel('Observações',{exact:true}).fill('Dados revisados pelo usuário no teste.')
+ await page.screenshot({path:'test-results/ai-review.png',fullPage:false})
+ await review.getByRole('button',{name:'Confirmar e salvar serviço',exact:true}).click()
+ await expect(review).toBeHidden();expect(writes).toBe(1);expect(interpretations).toBe(1)
+ await expect(page.getByRole('heading',{name:'Troca de amortecedores, cabos e velas — teste IA',exact:true})).toBeVisible()
+ await expect(page.locator('.record-parts')).toContainText('Incluído no total')
+ await page.reload();await selectTestVehicle(page)
+ await expect(page.locator('.timeline-record')).toHaveCount(1)
+ await expect(page.locator('.record-totals')).toContainText('R$ 850,00')
+ expect(errors).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy()
+})
+
+test('unavailable AI preserves the manual workflow and cancellation makes no writes',async({page})=>{
+ await page.route('**/api/ai/maintenance/status',route=>route.fulfill({json:{available:false,maxMessageLength:4000,reason:'IA indisponível nesta instalação. Você pode registrar o serviço manualmente.'}}))
+ await signIn(page,'/historico')
+ await page.getByRole('button',{name:'Registrar com IA',exact:true}).click()
+ const intake=page.getByRole('dialog',{name:'Registrar com IA',exact:true})
+ await expect(intake).toContainText('IA indisponível nesta instalação')
+ await expect(intake.getByRole('button',{name:'Interpretar e revisar',exact:true})).toBeDisabled()
+ await intake.getByRole('button',{name:'Continuar manualmente',exact:true}).click()
+ const manual=page.getByRole('dialog',{name:'Registrar serviço',exact:true})
+ await expect(manual).toBeVisible();await manual.getByRole('button',{name:'Cancelar',exact:true}).click()
+ await expect(page.locator('.timeline-record')).toHaveCount(0)
+})
+
+test('provider errors stay actionable and allow editing the original message',async({page})=>{
+ await page.route('**/api/ai/maintenance/status',route=>route.fulfill({json:{available:true,maxMessageLength:4000,reason:null}}))
+ let calls=0
+ await page.route('**/api/ai/maintenance/interpret',route=>{calls++;return calls===1?route.fulfill({status:429,contentType:'application/problem+json',json:{title:'Limite da IA atingido. Aguarde e tente novamente ou registre manualmente.',status:429}}):route.fulfill({json:{invalid:true}})})
+ await signIn(page,'/historico');await page.getByRole('button',{name:'Registrar com IA',exact:true}).click()
+ const intake=page.getByRole('dialog',{name:'Registrar com IA',exact:true})
+ await intake.getByLabel('Descrição da manutenção',{exact:true}).fill('Troquei as velas.')
+ await intake.getByRole('button',{name:'Interpretar e revisar',exact:true}).click()
+ await expect(intake.getByRole('alert')).toContainText('Limite da IA atingido')
+ await expect(intake.getByLabel('Descrição da manutenção',{exact:true})).toHaveValue('Troquei as velas.')
+ await intake.getByRole('button',{name:'Interpretar e revisar',exact:true}).click()
+ await expect(intake.getByRole('alert')).toContainText('A sugestão recebida é inválida')
+ await intake.getByRole('button',{name:'Continuar manualmente',exact:true}).click()
+ await expect(page.getByRole('dialog',{name:'Registrar serviço',exact:true})).toBeVisible()
+})

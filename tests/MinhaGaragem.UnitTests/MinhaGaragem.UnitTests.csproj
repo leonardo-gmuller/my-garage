@@ -11,4 +11,7 @@
             PrivateAssets="all"
         /><Using Include="Xunit" />
     </ItemGroup>
+    <ItemGroup>
+        <Compile Include="../TestSupport/FakeChatClient.cs" Link="AI/FakeChatClient.cs" />
+    </ItemGroup>
 </Project>

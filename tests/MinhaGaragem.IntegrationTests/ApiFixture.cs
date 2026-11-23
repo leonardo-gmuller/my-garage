@@ -33,6 +33,7 @@ public sealed class ApiFixture : IAsyncLifetime
             b.UseEnvironment("Testing")
                 .UseSetting("ConnectionStrings:Garage", cs)
                 .UseSetting("Auth:PermitLimit", "1000")
+                .UseSetting("AI_ENABLED", "false")
                 .UseSetting("Storage:Path", storage)
                 .UseSetting("Bootstrap:Enabled", "false")
                 .UseSetting("Database:MigrateOnStartup", "false")

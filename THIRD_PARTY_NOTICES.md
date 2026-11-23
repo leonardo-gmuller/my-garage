@@ -12,6 +12,8 @@ A [licença MIT](LICENSE) cobre o código original deste repositório. Dependên
 | VueUse Motion | Animações | MIT; pacote `@vueuse/motion` |
 | Sora e DM Sans | Fontes locais via Fontsource | SIL Open Font License 1.1; arquivos de licença nos pacotes `@fontsource-variable` |
 | ASP.NET Core e EF Core | API, autenticação e dados | MIT; pacotes Microsoft correspondentes |
+| Google.GenAI | SDK Gemini e adaptador IChatClient | Apache-2.0; pacote Google.GenAI |
+| Microsoft.Extensions.AI | Contrato e saídas estruturadas de IA | MIT; pacote Microsoft.Extensions.AI |
 | Npgsql | Acesso ao PostgreSQL | PostgreSQL License; pacote Npgsql |
 | OpenTelemetry .NET | Instrumentação | Apache-2.0; pacotes OpenTelemetry |
 | PostgreSQL | Banco de dados | PostgreSQL License |

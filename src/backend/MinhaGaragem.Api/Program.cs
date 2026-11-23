@@ -11,8 +11,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MinhaGaragem.Api;
 using MinhaGaragem.Application;
+using MinhaGaragem.Application.AI;
 using MinhaGaragem.Domain;
 using MinhaGaragem.Infrastructure;
+using MinhaGaragem.Infrastructure.AI;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -31,6 +33,7 @@ builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<GarageService>();
 builder.Services.AddScoped<MechanicService>();
+builder.Services.AddMaintenanceAi(builder.Configuration);
 var connection = builder.Configuration.GetConnectionString("Garage")
     ?? throw new InvalidOperationException(
         "Defina ConnectionStrings__Garage. Consulte .env.example."
@@ -93,6 +96,29 @@ builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = 9 * 1024 * 1
 builder.Services.AddRateLimiter(o =>
 {
     o.RejectionStatusCode = 429;
+    o.OnRejected = async (context, ct) =>
+    {
+        context.HttpContext.Response.Headers.RetryAfter = "60";
+        await Results
+            .Problem(
+                statusCode: 429,
+                title: "Limite de solicitações atingido. Aguarde antes de tentar novamente."
+            )
+            .ExecuteAsync(context.HttpContext);
+    };
+    o.AddPolicy("ai", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "anonymous",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = context
+                    .RequestServices.GetRequiredService<MaintenanceAiOptions>()
+                    .RequestsPerMinute,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+            }
+        )
+    );
     o.AddPolicy("auth", context =>
         RateLimitPartition.GetFixedWindowLimiter(
             context.Connection.RemoteIpAddress?.ToString() ?? "local",
@@ -110,9 +136,15 @@ builder.Services.AddHealthChecks().AddCheck<PostgresHealthCheck>("postgresql", t
 var telemetry = builder
     .Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService("MinhaGaragem.Api"))
-    .WithTracing(t => t.AddAspNetCoreInstrumentation().AddHttpClientInstrumentation())
+    .WithTracing(t =>
+        t.AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddSource(MaintenanceAiTelemetry.Name)
+    )
     .WithMetrics(m =>
-        m.AddAspNetCoreInstrumentation().AddHttpClientInstrumentation().AddMeter("System.Runtime")
+        m.AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddMeter("System.Runtime", MaintenanceAiTelemetry.Name)
     );
 if (!string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))
     telemetry.UseOtlpExporter();
@@ -176,6 +208,7 @@ auth.MapPost("/logout", async (SignInManager<User> signIn) =>
     .RequireAuthorization();
 app.MapGarageEndpoints();
 app.MapMechanicEndpoints();
+app.MapMaintenanceAiEndpoints();
 if (builder.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
 {
     await using var scope = app.Services.CreateAsyncScope();
@@ -223,6 +256,22 @@ public sealed class ApiExceptionHandler(
     {
         var (status, title) = exception switch
         {
+            MaintenanceAiException e => e.Failure switch
+            {
+                AiFailure.RateLimited => (
+                    429,
+                    "Limite da IA atingido. Aguarde e tente novamente ou registre manualmente."
+                ),
+                AiFailure.Timeout => (
+                    504,
+                    "A interpretação demorou mais que o esperado. Tente novamente ou registre manualmente."
+                ),
+                AiFailure.InvalidResponse => (
+                    502,
+                    "A IA retornou uma sugestão inválida ou sem evidência suficiente. Revise o relato ou registre manualmente."
+                ),
+                _ => (503, "IA indisponível. O registro manual continua disponível."),
+            },
             DomainException e => (400, e.Message),
             NotFoundException => (404, "Recurso não encontrado."),
             AntiforgeryValidationException => (

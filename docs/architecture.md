@@ -37,3 +37,9 @@ A cena importa apenas um catálogo de componentes e o mapeamento visual. Não ca
 ## Componentes e pintura
 
 Conjuntos possuem VehicleSubcomponent por veículo. Registros guardam o componente principal, vínculos aos conjuntos e vínculos opcionais às peças, sem duplicar custos. FKs compostas exigem que cada subcomponente pertença ao conjunto envolvido e ao veículo correto. Agendamentos podem apontar a uma peça técnica. O resumo usa todos os serviços para o custo acumulado e mostra somente os cinco recentes. ColorHex e PaintFinish persistem junto de Color no veículo; um endpoint de pintura preserva seus demais campos. O frontend aplica clones PBR apenas aos slots elegíveis por grupo/material, reutilizando-os a cada prévia. Consulte [a documentação detalhada](component-details-and-paint.md).
+
+## Inteligência artificial
+
+O módulo `Application/AI` interpreta relatos por `IChatClient`, consulta somente o veículo autorizado e seu catálogo e devolve um rascunho transitório. O adaptador oficial do Gemini fica em `Infrastructure/AI`, com timeout, tentativa única e continuação automática desativada. A API aplica autenticação, CSRF e limite por usuário; a aplicação limita concorrência e solicitações diárias em memória.
+
+Saída estruturada não substitui validação: o servidor resolve chaves do catálogo em IDs reais, exige evidências no relato e reutiliza `Rules.Record`. A IA não recebe ferramentas de escrita nem grava registros. O frontend preenche o formulário existente, preserva dados desconhecidos em branco e usa o POST normal somente após confirmação. Não há nova tabela ou migration para rascunhos. Configuração, privacidade, limites e estudo estão em [ai-learning.md](ai-learning.md).

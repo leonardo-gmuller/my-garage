@@ -16,6 +16,7 @@ Projeto de portfólio construído com frontend Vue, API .NET e persistência rea
 ## O que o projeto faz
 
 - **Garagem 3D:** câmera orbital, zoom, seleção de peças e consulta ao histórico por componente.
+- **Registrar com IA:** interpretação opcional de relatos com Gemini, rascunho editável e confirmação humana antes de gravar. [Configuração e estudo](docs/ai-learning.md).
 - **Manutenção por sistema:** motor, suspensão, freios e outros conjuntos, com subcomponentes técnicos e peças substituídas.
 - **Serviços flexíveis:** valores detalhados ou um total fechado para várias trocas, sem duplicar o gasto entre componentes.
 - **Pagamentos separados:** peças e mão de obra podem ter parcelas e acréscimos diferentes. Informações desconhecidas ficam pendentes.
@@ -121,6 +122,10 @@ Para testar no navegador, use uma instalação e uma conta de testes isoladas; c
 
 GitHub Actions valida backend, frontend e migrations. [Guia de desenvolvimento e debug](docs/development.md).
 
+## IA opcional
+
+Configure a chave Gemini exclusivamente no backend para habilitar **Registrar com IA** no histórico. Sem chave, a interface informa a indisponibilidade e mantém o formulário manual. A interpretação não grava dados; a confirmação reutiliza o fluxo normal de serviços. Consulte [o guia de IA](docs/ai-learning.md) para configuração, limites, privacidade, testes e debug.
+
 ## Modelos e créditos
 
 O repositório inclui uma picape demonstrativa gerada pelo próprio código Three.js. O GLB específico da Saveiro, usado no ambiente local de desenvolvimento, **não é redistribuído**, pois sua licença não foi confirmada. O projeto funciona sem ele. A integração opcional está documentada em [modelos 3D](docs/3d-models.md).
@@ -129,6 +134,7 @@ Este é um projeto independente, sem vínculo com fabricantes de veículos. Bibl
 
 ## Documentação
 
+- [IA: configuração, limites e aprendizado](docs/ai-learning.md)
 - [Arquitetura e decisões](docs/architecture.md)
 - [Desenvolvimento, configuração e testes](docs/development.md)
 - [Seed fictício](docs/demo-seed.md)

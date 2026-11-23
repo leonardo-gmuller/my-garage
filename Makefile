@@ -13,7 +13,7 @@ DB_PORT ?= 55432
 COMPOSE_PROJECT_NAME ?= my-garage
 export API_PROJECT INFRA_PROJECT FRONTEND_DIR CONFIGURATION API_PORT VITE_PORT DB_PORT COMPOSE_PROJECT_NAME
 export SEED_BASE_URL
-.PHONY: help setup up down dev dev-api dev-front build test lint migrate logs clean db-up debug-prepare debug-front debug-vite debug-stop test-e2e seed
+.PHONY: help setup up down dev dev-api dev-front build test lint migrate logs clean db-up debug-prepare debug-front debug-vite debug-stop test-e2e seed format format-check ai-test
 help: ## Listar os comandos disponíveis
 	@awk 'BEGIN {FS = ":.*## "; print "Minha Garagem — desenvolvimento\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  make %-17s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 setup: ## Preparar .env e instalar dependências .NET/npm
@@ -55,3 +55,10 @@ test-e2e: ## Executar Playwright com ambiente de desenvolvimento já iniciado
 
 debug-vite: ## Iniciar Vite pertencente à sessão de debug
 	@$(NODE) $(DEV_SCRIPT) debug-vite
+
+format: ## Formatar C# com CSharpier
+	@$(NODE) $(DEV_SCRIPT) format
+format-check: ## Conferir formatação C# com CSharpier
+	@$(NODE) $(DEV_SCRIPT) format-check
+ai-test: ## Executar testes de IA sem chamadas externas
+	@$(NODE) $(DEV_SCRIPT) ai-test
