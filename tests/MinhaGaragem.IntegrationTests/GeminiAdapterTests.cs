@@ -122,6 +122,106 @@ public sealed class GeminiAdapterTests
     }
 
     [Fact]
+    public async Task OfficialSdkTransportsReadToolsAndReturnsAFunctionCallWithoutInvokingIt()
+    {
+        var builder = WebApplication.CreateSlimBuilder();
+        builder.Logging.ClearProviders();
+        builder.WebHost.UseUrls("http://127.0.0.1:0");
+        await using var app = builder.Build();
+        JsonNode? payload = null;
+        var calls = 0;
+        app.MapPost("/{**path}", async (HttpContext context) =>
+        {
+            calls++;
+            payload = JsonNode.Parse(await new StreamReader(context.Request.Body).ReadToEndAsync());
+            return Results.Json(
+                new
+                {
+                    candidates = new[]
+                    {
+                        new
+                        {
+                            content = new
+                            {
+                                role = "model",
+                                parts = new[]
+                                {
+                                    new
+                                    {
+                                        functionCall = new
+                                        {
+                                            name = "consultar_gastos",
+                                            args = new
+                                            {
+                                                filters = new
+                                                {
+                                                    componentKey = "suspension",
+                                                    subcomponentKey = (string?)null,
+                                                    year = (int?)null,
+                                                    searchTerm = (string?)null,
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            finishReason = "STOP",
+                        },
+                    },
+                }
+            );
+        });
+        await app.StartAsync();
+        var url = app
+            .Services.GetRequiredService<IServer>()
+            .Features.Get<IServerAddressesFeature>()!
+            .Addresses.Single();
+        using var google = new Client(
+            apiKey: "test-only-key",
+            vertexAI: false,
+            httpOptions: new HttpOptions
+            {
+                BaseUrl = url,
+                Timeout = 5000,
+                RetryOptions = new() { Attempts = 1 },
+            }
+        );
+        using var chat = new GeminiChatClient(google.AsIChatClient("test-model"));
+        var invoked = false;
+        var tool = AIFunctionFactory.Create(
+            (HistoryFilters filters) =>
+            {
+                invoked = true;
+                return 100;
+            },
+            "consultar_gastos",
+            "Consulta somente leitura"
+        );
+        var response = await chat.GetResponseAsync(
+            "Quanto gastei com suspensão?",
+            new ChatOptions
+            {
+                Tools = [tool],
+                ToolMode = ChatToolMode.RequireAny,
+                MaxOutputTokens = 1024,
+            }
+        );
+        var call = Assert.Single(
+            response.Messages.SelectMany(m => m.Contents).OfType<FunctionCallContent>()
+        );
+        Assert.Equal("consultar_gastos", call.Name);
+        Assert.False(invoked);
+        Assert.Equal(1, calls);
+        var declaration = payload!["tools"]![0]!["functionDeclarations"]![0]!;
+        Assert.Equal("consultar_gastos", declaration["name"]!.GetValue<string>());
+        Assert.Equal(
+            "ANY",
+            payload["toolConfig"]!["functionCallingConfig"]!["mode"]!.GetValue<string>()
+        );
+        await app.StopAsync();
+    }
+
+    [Fact]
     public void EmptyEnvironmentKeyDoesNotHideAUserSecretsKeyAndUnsupportedProvidersStayUnavailable()
     {
         var config = new ConfigurationBuilder()

@@ -5,6 +5,7 @@ export const router=createRouter({history:createWebHistory(),scrollBehavior:(to,
  {path:'/mecanicos',component:()=>import('../views/MechanicsView.vue'),meta:{title:'Mecânicos',vehicleScoped:false,kicker:'Sua agenda de confiança.'}},
  {path:'/veiculos',component:()=>import('../views/VehiclesView.vue'),meta:{title:'Meus veículos'}},
  {path:'/historico',component:()=>import('../views/HistoryView.vue'),meta:{title:'Histórico de serviços'}},
+ {path:'/assistente',component:()=>import('../views/AssistantView.vue'),meta:{title:'Assistente do histórico',kicker:'Respostas que vêm dos seus registros.'}},
  {path:'/financeiro',component:()=>import('../views/FinanceView.vue'),meta:{title:'Controle financeiro'}},
  {path:'/agenda',component:()=>import('../views/SchedulesView.vue'),meta:{title:'Próximas manutenções'}},
  {path:'/:pathMatch(.*)*',redirect:'/'}

@@ -57,6 +57,8 @@ public static class MaintenanceAiRegistration
         else
             services.AddSingleton<IChatClient, UnavailableChatClient>();
         services.AddScoped<MaintenanceInterpreter>();
+        services.AddScoped<HistoryQueries>();
+        services.AddScoped<HistoryAssistant>();
         return services;
     }
 

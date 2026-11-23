@@ -25,7 +25,7 @@ export async function signIn(page:Page,path='/'){
  await page.getByRole('button',{name:'Selecionar Saveiro E2E',exact:true}).click()
  // Persist the selected vehicle by changing routes inside the SPA.
  if(path!=='/veiculos'){
-  const names:Record<string,string>={'/':'Visão geral','/historico':'Histórico de serviços','/garagem-3d':'Garagem 3D','/mecanicos':'Mecânicos','/financeiro':'Financeiro','/agenda':'Próximas manutenções'}
+  const names:Record<string,string>={'/':'Visão geral','/historico':'Histórico de serviços','/assistente':'Assistente do histórico','/garagem-3d':'Garagem 3D','/mecanicos':'Mecânicos','/financeiro':'Financeiro','/agenda':'Próximas manutenções'}
   const menu=page.getByRole('button',{name:'Abrir navegação'});if(await menu.isVisible())await menu.click()
   await page.getByRole('link',{name:names[path],exact:true}).click()
  }

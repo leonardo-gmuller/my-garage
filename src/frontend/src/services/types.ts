@@ -35,3 +35,6 @@ export interface MaintenanceAiDraft {
  items:{name:string;quantity:number|null}[];missingFields:string[];warnings:string[];promptVersion:string;
 }
 export const aiFieldLabels:Record<string,string>={serviceDate:'Data do serviço',mileage:'Quilometragem (opcional)',totalCost:'Valor total',category:'Categoria',serviceType:'Tipo de serviço',workshop:'Oficina (opcional)',components:'Componentes envolvidos',itemQuantities:'Quantidade das peças'}
+
+export interface AssistantRecord { id:string; description:string; date:string; mileage:number|null; totalCost:number; closedTotal:boolean; pendingPaymentCount:number; url:string }
+export interface HistoryAnswer { vehicleId:string; kind:'latest'|'spending'|'pending'|'clarification'; message:string; scope:string; count:number; total:number|null; pendingPaymentCount:number; records:AssistantRecord[]; schedules:{schedule:Schedule;url:string}[]; warnings:string[]; promptVersion:string }

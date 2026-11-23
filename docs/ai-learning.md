@@ -116,11 +116,11 @@ No fechamento da Fase 1, em 23/11/2026, os 130 testes de backend, o lint e o bui
 
 ## 10. Prompt engineering, tool calling e RAG
 
-- **Prompt engineering:** instruções, contexto e formato para esta extração. É o que esta fase utiliza.
-- **Tool calling:** o modelo solicita uma função do backend, que precisaria autorizar cada consulta. Não está habilitado nesta entrega.
+- **Prompt engineering:** instruções, contexto e formato para esta extração. É o que Registrar com IA utiliza.
+- **Tool calling:** o modelo solicita uma função do backend, que precisaria autorizar cada consulta. O [assistente da Fase 2](ai-assistant.md) implementa consultas de leitura com execução controlada.
 - **RAG:** busca de trechos de documentos para compor contexto e citar referências. Não há ingestão de manual ou banco vetorial nesta fase.
 
-Leitura de notas, assistente de histórico e manual inteligente continuam fora do escopo. Anexos existentes não são enviados à IA.
+Leitura de notas e manual inteligente continuam fora do escopo. O assistente de histórico está documentado na [Fase 2](ai-assistant.md). Anexos existentes não são enviados à IA.
 
 ## 11. Privacidade, observabilidade e custos
 

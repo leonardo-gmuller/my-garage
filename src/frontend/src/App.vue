@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Toast from 'primevue/toast'
 import Select from 'primevue/select'
 import Drawer from 'primevue/drawer'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
-import { CarFront, LayoutDashboard, Box, History, Wallet, CalendarClock, LogOut, Plus, Menu, UsersRound } from 'lucide-vue-next'
+import { CarFront, LayoutDashboard, Box, History, Wallet, CalendarClock, LogOut, Plus, Menu, UsersRound, MessageSquareText } from 'lucide-vue-next'
 import { useGarage } from './stores/garage'
 import AuthView from './views/AuthView.vue'
 import RecordDialog from './components/RecordDialog.vue'
@@ -18,11 +18,20 @@ const links = [
   { to: '/garagem-3d', label: 'Garagem 3D', icon: Box },
   { to: '/mecanicos', label: 'Mecânicos', icon: UsersRound },
   { to: '/historico', label: 'Histórico de serviços', icon: History },
+  { to: '/assistente', label: 'Assistente do histórico', icon: MessageSquareText },
   { to: '/financeiro', label: 'Financeiro', icon: Wallet },
   { to: '/agenda', label: 'Próximas manutenções', icon: CalendarClock },
 ]
 const vehicleOptions = computed(() => g.vehicles.map(v => ({ id: v.id, label: `${v.nickname || v.model} · ${v.modelYear}` })))
 onMounted(() => g.init())
+watch([()=>g.ready,()=>g.vehicles,()=>route.query.vehicle],()=>{
+  const id=route.query.vehicle
+  if(typeof id==='string'&&g.vehicles.some(v=>v.id===id)&&g.selectedId!==id)void g.select(id)
+},{immediate:true})
+async function selectVehicle(id:string){
+  if(route.query.vehicle||route.query.record){const query={...route.query};delete query.vehicle;delete query.record;await router.replace({query})}
+  await g.select(id)
+}
 async function logout() {
   try { await g.logout(); await router.push('/') }
   catch (e) { toast.add({ severity: 'error', summary: (e as Error).message, life: 5000 }) }
@@ -58,7 +67,7 @@ async function logout() {
               <div><p class="page-kicker">{{route.meta.kicker??'Seu veículo, por inteiro.'}}</p><h1>{{route.meta.title}}</h1></div>
               <div class="heading-actions">
                 <Select :model-value="g.selectedId" :options="vehicleOptions" option-label="label" option-value="id"
-                  aria-label="Veículo selecionado" class="vehicle-select" placeholder="Nenhum veículo" @change="g.select($event.value)" />
+                  aria-label="Veículo selecionado" class="vehicle-select" placeholder="Nenhum veículo" @change="selectVehicle($event.value)" />
                 <Button v-if="g.selected" class="button primary" @click="recordOpen=true"><Plus :size="17" />Registrar serviço</Button>
               </div>
             </div>
